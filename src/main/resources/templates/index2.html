@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <!-- 引入 ECharts 文件 -->
+    <script src="../static/js/echarts.min.js"></script>
+    <script src="../static/js/jquery-1.12.4.js"></script>
+</head>
+<body>
+<!-- 为 ECharts 准备一个具备大小（宽高）的 DOM -->
+<div id="main"
+     style="width: 600px;height:400px;position:absolute;top:50%;left: 50%;margin-top: -200px;margin-left: -300px;">
+</div>
+<a href="/index">库存页面</a>
+<script type="text/javascript">
+    $(document).ready(function () {
+        // 基于准备好的dom，初始化echarts实例
+        var myChart = echarts.init(document.getElementById('main'));
+        // 指定图表的配置项和数据
+        var names = [];   //商品名称
+        var data = [];    //data是饼图显示数据
+        //数据加载完之前先显示一段简单的loading动画
+        myChart.showLoading();
+        $.ajax({
+            url: "/getAll",
+            dataType: "json",        //返回数据形式为json
+            success: function (result) {
+                console.log(result)
+                //请求成功时执行该函数内容，result即为服务器返回的json对象
+                if (result) {
+                    for (var i = 0; i < result.length; i++) {
+                        names.push(result[i].name);
+                        //插入数据变成[{value:...,name:....},{value:...,name:....}]格式
+                        data[i] = {value: result[i].number, name: result[i].name}
+                    }
+                    myChart.hideLoading();    //隐藏加载动画
+                    myChart.setOption(
+                        {
+                            title: {
+                                text: '商品销量',
+                                x: 'center'
+                            },
+                            tooltip: {   ///和series进行绑定的显示数据
+                                trigger: 'item',
+                                formatter: "{a} <br/>{b} : {c} ({d}%)"
+                            },
+                            legend: {    //在左边的说明
+                                orient: 'vertical',
+                                left: 'left',
+                                data: names
+                            },
+                            series: [
+                                {
+                                    name: '商品销量',
+                                    type: 'pie',
+                                    radius: '55%',   //图状的大小
+                                    center: ['50%', '60%'],   //图状的位置
+                                    data: data,   //图状的数据
+                                    /*   data中的数据必须是  键值对   {value:数据,name:数据}
+                                    {value:335, name:'直接访问'},
+                                    {value:310, name:'邮件营销'},
+                                    {value:234, name:'联盟广告'},
+                                    {value:135, name:'视频广告'},
+                                    {value:1548, name:'搜索引擎'}
+                                     */
+                                    itemStyle: {
+                                        emphasis: {
+                                            shadowBlur: 10,
+                                            shadowOffsetX: 0,
+                                            shadowColor: 'rgba(0, 0, 0, 0.5)'
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    );
+                }
+            },
+            error: function (errorMsg) {
+                //请求失败时执行该函数
+                alert("图表请求数据失败!");
+                myChart.hideLoading();
+            }
+        });//end ajax
+
+    });//刷新方法结束
+</script>
+</body>
+</html>

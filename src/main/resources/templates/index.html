@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <!-- 引入 ECharts 文件 -->
+    <script src="../static/js/echarts.min.js"></script>
+    <script src="../static/js/jquery-1.12.4.js"></script>
+</head>
+<body>
+<!-- 为 ECharts 准备一个具备大小（宽高）的 DOM -->
+<div id="main"
+     style="width: 600px;height:400px;position:absolute;top:50%;left: 50%;margin-top: -200px;margin-left: -300px;">
+</div>
+<a href="/index2">销量页面</a>
+
+<script type="text/javascript">
+    // 基于准备好的dom，初始化echarts实例
+    var myChart = echarts.init(document.getElementById('main'));//main是<div id="main">
+    $.ajax({
+        url: "getAll",   //调用查询全部接口
+        success: function (data) {
+            // 指定图表的配置项和数据
+            var name = [];   //商品名称
+            var number = [];   //库存量
+            for (var i = 0; i < data.length; i++) {
+                name[i] = data[i].name;
+                number[i] = data[i].number;
+            }
+            var option = {
+                title: {
+                    text: 'Market商品库存树状图'
+                },
+                tooltip: {},
+                legend: { //说明
+                    data: ["库存"]
+                },
+                xAxis: { // 横坐标
+                    data: name
+                },
+                yAxis: {},
+                series: [{
+                    name: '库存',
+                    type: 'bar',
+                    data: number
+                }]
+            };
+            // 使用刚指定的配置项和数据显示图表。
+            myChart.setOption(option);
+        }
+    })
+
+
+</script>
+</body>
+</html>
